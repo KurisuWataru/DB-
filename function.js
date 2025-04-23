@@ -87,6 +87,7 @@ function exportDifferencesToCsv(ary1, ary2, csvPath) {
     // CSVのヘッダー行を追加
     csvRows.push('先頭のカラム情報,カラム,変更前,変更後');
 
+    let diffCount = 0; // 差分件数をカウント
     // 各レコードの比較
     for (let i = 0; i < ary1.records.length; i++) {
         const record1 = ary1.records[i];
@@ -95,6 +96,7 @@ function exportDifferencesToCsv(ary1, ary2, csvPath) {
         // 各セルの比較
         for (let j = 0; j < record1.length; j++) {
             if (record1[j] !== record2[j]) {
+                diffCount++;
                 // 差分情報を作成（先頭のカラム情報は「ヘッダー名 : 先頭値」として出力）
                 const rowData = [
                     `${ary1.header[0]} : ${record1[0]}`,
@@ -107,6 +109,11 @@ function exportDifferencesToCsv(ary1, ary2, csvPath) {
                 csvRows.push(escapedRow.join(','));
             }
         }
+    }
+
+    if (diffCount === 0) {
+        console.log('差分は見つかりませんでした。CSVファイルは作成されません。');
+        return;
     }
 
     // CSV内容を作成し、UTF-8 BOMを追加（Excelでの文字化け防止）
