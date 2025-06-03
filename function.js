@@ -88,15 +88,19 @@ function exportDifferencesToCsv(ary1, ary2, csvPath) {
     csvRows.push('先頭のカラム情報,カラム,変更前,変更後');
 
     let diffCount = 0; // 差分件数をカウント
+    let diffRecordCount = 0; // 差分があるレコード数をカウント
+    
     // 各レコードの比較
     for (let i = 0; i < ary1.records.length; i++) {
         const record1 = ary1.records[i];
         const record2 = ary2.records[i];
+        let recordHasDiff = false; // このレコードに差分があるかのフラグ
 
         // 各セルの比較
         for (let j = 0; j < record1.length; j++) {
             if (record1[j] !== record2[j]) {
                 diffCount++;
+                recordHasDiff = true;
                 // 差分情報を作成（先頭のカラム情報は「ヘッダー名 : 先頭値」として出力）
                 const rowData = [
                     `${ary1.header[0]} : ${record1[0]}`,
@@ -109,12 +113,21 @@ function exportDifferencesToCsv(ary1, ary2, csvPath) {
                 csvRows.push(escapedRow.join(','));
             }
         }
+        
+        // このレコードに差分があった場合、レコード数をインクリメント
+        if (recordHasDiff) {
+            diffRecordCount++;
+        }
     }
 
     if (diffCount === 0) {
         console.log('差分は見つかりませんでした。CSVファイルは作成されません。');
         return;
     }
+
+    // 差分の数と差分が見つかったレコードの数を表示
+    console.log(`差分の数: ${diffCount}`);
+    console.log(`差分が見つかったレコードの数: ${diffRecordCount}`);
 
     // CSV内容を作成し、UTF-8 BOMを追加（Excelでの文字化け防止）
     const csvContent = "\uFEFF" + csvRows.join('\n');
